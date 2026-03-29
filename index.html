@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OpenRound — Private equity for all.</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F5F5F7;--white:#FFFFFF;--card:#FFFFFF;
+  --border:#E8E8ED;--border2:#D2D2D7;
+  --text:#1D1D1F;--sub:#6E6E73;--muted:#AEAEB2;
+  --accent:#06C270;--adim:rgba(6,194,112,.1);
+  --red:#FF3B30;--rdim:rgba(255,59,48,.08);
+  --blue:#007AFF;--bdim:rgba(0,122,255,.08);
+  --gold:#FF9500;--gdim:rgba(255,149,0,.1);
+  --purple:#AF52DE;--pdim:rgba(175,82,222,.08);
+  --font:'Inter',sans-serif;
+  --radius:16px;--radius-sm:12px;--radius-xs:8px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;position:relative;overflow:hidden;background:var(--bg)}
+.screen{flex:1;overflow-y:auto;display:none;padding-bottom:90px}
+.screen.active{display:block}
+.screen::-webkit-scrollbar{display:none}
+
+/* ── HEADER ── */
+.topbar{padding:16px 20px 8px;background:var(–bg)}
+.topbar-row{display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:8px}
+.brand-logo{width:32px;height:32px}
+.brand-name{font-size:18px;font-weight:700;color:var(–text);letter-spacing:-.3px}
+.brand-name span{color:var(–accent)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.pts-chip{display:flex;align-items:center;gap:4px;background:var(–white);border:1px solid var(–border);border-radius:20px;padding:5px 12px;cursor:pointer}
+.pts-chip-val{font-size:13px;font-weight:600;color:var(–gold)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(–blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff}
+
+/* ── NAV ── */
+nav{position:absolute;bottom:0;left:0;right:0;display:flex;background:rgba(255,255,255,.92);border-top:1px solid var(–border);padding:8px 0 24px;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;opacity:.38;transition:opacity .18s}
+.nav-item.active{opacity:1}
+.nav-item.active .ni{color:var(–blue)}
+.nav-item.active .nl{color:var(–blue)}
+.ni{font-size:20px;color:var(–muted);line-height:1}
+.nl{font-size:9px;font-weight:600;color:var(–muted);letter-spacing:.2px}
+
+/* ── SHARED ── */
+.section-title{font-size:22px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
+.section-sub{font-size:14px;color:var(–sub);margin-bottom:20px}
+.label{font-size:11px;font-weight:600;color:var(–muted);letter-spacing:.5px;text-transform:uppercase;margin:20px 0 10px}
+.divider{height:1px;background:var(–border);margin:16px 0}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(145deg,#1D1D1F 0%,#2D2D30 100%);border-radius:20px;padding:24px;margin:8px 20px 0;position:relative;overflow:hidden}
+.hero::after{content:’’;position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(6,194,112,.15);filter:blur(30px)}
+.hero-tag{font-size:11px;font-weight:600;color:var(–accent);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.hero-title{font-size:22px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:6px;letter-spacing:-.3px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.55);line-height:1.5}
+
+/* ── GAME CHIP ── */
+.game-chip{display:flex;align-items:center;gap:12px;background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:14px 16px;margin:10px 20px 0;cursor:pointer}
+.game-chip-icon{font-size:26px;line-height:1}
+.game-chip-title{font-size:14px;font-weight:600}
+.game-chip-sub{font-size:12px;color:var(–sub);margin-top:1px}
+.game-chip-btn{margin-left:auto;background:var(–purple);color:#fff;font-family:var(–font);font-size:11px;font-weight:600;border:none;border-radius:var(–radius-xs);padding:7px 12px;cursor:pointer;white-space:nowrap}
+
+/* ── SEARCH ── */
+.search-wrap{position:relative;margin:12px 20px 0}
+.search-wrap input{width:100%;background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:11px 16px 11px 38px;font-family:var(–font);font-size:15px;color:var(–text);outline:none}
+.search-wrap input::placeholder{color:var(–muted)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(–muted)}
+
+/* ── STATS ROW ── */
+.stats-row{display:flex;gap:8px;margin:10px 20px 0}
+.stat-box{flex:1;background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:12px;text-align:center}
+.stat-box-val{font-size:18px;font-weight:700;color:var(–text)}
+.stat-box-label{font-size:10px;color:var(–muted);margin-top:2px;font-weight:500;letter-spacing:.3px}
+
+/* ── COMPANY CARDS ── */
+.co-list{padding:0 20px}
+.co-card{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:16px;margin-bottom:10px;cursor:pointer;transition:transform .1s;animation:fadeUp .3s ease both}
+.co-card:active{transform:scale(.99)}
+.co-card:nth-child(1){animation-delay:.03s}.co-card:nth-child(2){animation-delay:.06s}
+.co-card:nth-child(3){animation-delay:.09s}.co-card:nth-child(4){animation-delay:.12s}
+.co-card:nth-child(5){animation-delay:.15s}.co-card:nth-child(6){animation-delay:.18s}
+.co-card:nth-child(7){animation-delay:.21s}
+.co-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.co-logo{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;font-family:var(–font)}
+.co-name{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.co-meta{font-size:12px;color:var(–sub);margin-top:2px;font-weight:400}
+.co-desc{font-size:13px;color:var(–sub);line-height:1.55;margin-bottom:12px}
+.co-stats{display:flex;gap:0;margin-bottom:12px;background:var(–bg);border-radius:var(–radius-xs);overflow:hidden}
+.co-stat{flex:1;padding:9px 10px;text-align:center;border-right:1px solid var(–border)}
+.co-stat:last-child{border-right:none}
+.co-stat-val{font-size:13px;font-weight:600}
+.co-stat-label{font-size:9px;color:var(–muted);margin-top:2px;font-weight:500;letter-spacing:.3px}
+.co-footer{display:flex;align-items:center;justify-content:space-between}
+.co-pts{display:flex;align-items:center;gap:4px}
+.co-pts-val{font-size:14px;font-weight:600;color:var(–gold)}
+.co-pts-label{font-size:11px;color:var(–muted)}
+.sent-mini{display:flex;align-items:center;gap:6px}
+.sent-mini-bar{width:60px;height:4px;background:var(–border);border-radius:2px;overflow:hidden;display:flex}
+.sent-mini-buy{height:4px;background:var(–accent)}
+.sent-mini-sell{height:4px;background:var(–red)}
+.sent-mini-label{font-size:11px;color:var(–sub)}
+.pill{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px}
+.pill.up{background:var(–adim);color:var(–accent)}
+.pill.dn{background:var(–rdim);color:var(–red)}
+.badge-tag{display:inline-block;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(–bdim);color:var(–blue);border:1px solid rgba(0,122,255,.15)}
+
+/* ── DETAIL ── */
+#detail{position:absolute;inset:0;background:var(–bg);z-index:200;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.8,.25,1);padding-bottom:100px}
+#detail.open{transform:translateX(0)}
+#detail::-webkit-scrollbar{display:none}
+.back-row{display:flex;align-items:center;padding:14px 20px;cursor:pointer;gap:4px}
+.back-chevron{font-size:18px;color:var(–blue)}
+.back-label{font-size:16px;color:var(–blue);font-weight:400}
+
+/* Detail hero */
+.d-hero{padding:0 20px 20px;border-bottom:1px solid var(–border)}
+.d-hero-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.d-logo-lg{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0}
+.d-name{font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:2px}
+.d-sub{font-size:13px;color:var(–sub);margin-bottom:8px;font-weight:400}
+
+/* Price card */
+.price-card{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:16px;margin:14px 20px 0}
+.price-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.price-label{font-size:11px;font-weight:600;color:var(–muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.price-main{font-size:34px;font-weight:700;color:var(–gold);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.price-sub{font-size:12px;color:var(–sub);margin-top:2px}
+.price-change{font-size:16px;font-weight:600}
+.trade-btns-row{display:flex;gap:8px}
+.btn-primary{flex:1;padding:13px;background:var(–accent);border:none;border-radius:var(–radius-sm);font-family:var(–font);font-size:14px;font-weight:600;color:#fff;cursor:pointer}
+.btn-secondary{flex:1;padding:13px;background:var(–bg);border:1px solid var(–border2);border-radius:var(–radius-sm);font-family:var(–font);font-size:14px;font-weight:500;color:var(–red);cursor:pointer}
+
+/* Sentiment */
+.sent-card{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:16px;margin:10px 20px 0}
+.sent-card-title{font-size:13px;font-weight:600;margin-bottom:10px}
+.sent-bar-full{height:10px;background:var(–bg);border-radius:5px;overflow:hidden;display:flex;margin-bottom:8px}
+.sent-fill-buy{height:10px;background:var(–accent);border-radius:5px 0 0 5px}
+.sent-fill-sell{height:10px;background:var(–red);border-radius:0 5px 5px 0}
+.sent-labels{display:flex;justify-content:space-between}
+.sent-buy-lbl{font-size:12px;font-weight:600;color:var(–accent)}
+.sent-sell-lbl{font-size:12px;font-weight:600;color:var(–red)}
+.sent-note{font-size:11px;color:var(–sub);margin-top:8px;line-height:1.5}
+
+/* OR Score */
+.score-card{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:16px;margin:10px 20px 0}
+.score-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.score-card-title{font-size:13px;font-weight:600}
+.score-total{font-size:28px;font-weight:700;color:var(–accent);font-variant-numeric:tabular-nums}
+.score-total span{font-size:13px;color:var(–muted);font-weight:400}
+.score-row{margin-bottom:9px}
+.score-row:last-child{margin-bottom:0}
+.score-row-top{display:flex;justify-content:space-between;margin-bottom:4px}
+.score-row-label{font-size:12px;color:var(–sub)}
+.score-row-num{font-size:12px;font-weight:600}
+.score-bar-bg{height:5px;background:var(–bg);border-radius:3px;overflow:hidden}
+.score-bar-fill{height:5px;border-radius:3px}
+
+/* Info cards */
+.info-card{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:16px;margin:10px 20px 0}
+.info-card-title{font-size:13px;font-weight:600;color:var(–muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:12px}
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv{background:var(–bg);border-radius:var(–radius-xs);padding:10px 12px}
+.kv-val{font-size:16px;font-weight:600}
+.kv-label{font-size:10px;color:var(–muted);margin-top:2px;font-weight:500}
+
+/* Burn chart */
+.burn-bars-wrap{display:flex;align-items:flex-end;gap:5px;height:60px;margin-bottom:6px}
+.bar-pair{flex:1;display:flex;gap:2px;align-items:flex-end}
+.bar-r{background:var(–accent);border-radius:3px 3px 0 0;opacity:.85;flex:1}
+.bar-b{background:var(–red);border-radius:3px 3px 0 0;opacity:.7;flex:1}
+.burn-months{display:flex;gap:5px;margin-bottom:6px}
+.burn-month{flex:1;text-align:center;font-size:8px;color:var(–muted);font-weight:500}
+.burn-legend{display:flex;gap:12px}
+.bl{display:flex;align-items:center;gap:5px;font-size:11px;color:var(–sub)}
+.bldot{width:8px;height:8px;border-radius:2px}
+
+/* Projections */
+.proj-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(–border)}
+.proj-row:last-child{border-bottom:none}
+.proj-yr{font-size:13px;color:var(–sub);font-weight:500}
+.proj-rev{font-size:14px;font-weight:600}
+.proj-note{font-size:11px;color:var(–muted)}
+
+/* Founder */
+.founder-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(–border)}
+.founder-item:last-child{border-bottom:none}
+.founder-av{width:44px;height:44px;border-radius:50%;background:var(–bdim);border:1px solid rgba(0,122,255,.15);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(–blue);flex-shrink:0}
+.founder-name{font-size:14px;font-weight:600}
+.founder-role{font-size:12px;color:var(–sub);margin-top:1px}
+.founder-bio{font-size:12px;color:var(–sub);line-height:1.6;margin-top:6px}
+.tags-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.ftag{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(–bg);border:1px solid var(–border);color:var(–sub)}
+.ftag.exit{background:var(–gdim);border-color:rgba(255,149,0,.2);color:var(–gold)}
+.ftag.edu{background:var(–bdim);border-color:rgba(0,122,255,.15);color:var(–blue)}
+.rep-row{display:flex;align-items:center;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid var(–border)}
+.rep-label{font-size:11px;color:var(–muted)}
+.rep-stars{color:var(–gold);font-size:12px;letter-spacing:1px}
+.rep-num{font-size:11px;font-weight:600;color:var(–gold)}
+
+/* Comparables */
+.comp-item{background:var(–bg);border-radius:var(–radius-sm);padding:12px;margin-bottom:8px}
+.comp-item:last-child{margin-bottom:0}
+.comp-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.comp-logo-sm{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.comp-name{font-size:13px;font-weight:600}
+.comp-desc-txt{font-size:11px;color:var(–sub);margin-top:1px;line-height:1.4}
+.comp-row{display:flex;gap:6px;margin-bottom:7px}
+.comp-stat{flex:1;background:var(–white);border-radius:var(–radius-xs);padding:7px 8px}
+.comp-stat-val{font-size:12px;font-weight:600}
+.comp-stat-label{font-size:9px;color:var(–muted);margin-top:1px}
+.comp-insight-box{background:var(–gdim);border:1px solid rgba(255,149,0,.15);border-radius:var(–radius-xs);padding:9px 10px;font-size:12px;color:var(–gold);line-height:1.5}
+
+/* Interest CTA */
+.interest-box{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:18px;margin:10px 20px 0}
+.interest-box-title{font-size:17px;font-weight:700;margin-bottom:4px;letter-spacing:-.2px}
+.interest-box-sub{font-size:13px;color:var(–sub);margin-bottom:14px;line-height:1.5}
+.interest-ctr{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.interest-num{font-size:28px;font-weight:700;color:var(–accent)}
+.interest-txt{font-size:12px;color:var(–sub);line-height:1.4}
+.btn-full{width:100%;padding:14px;background:var(–blue);border:none;border-radius:var(–radius-sm);font-family:var(–font);font-size:15px;font-weight:600;color:#fff;cursor:pointer}
+.btn-full.green{background:var(–accent)}
+.btn-full.disabled{background:var(–bg);color:var(–muted);border:1px solid var(–border);cursor:default}
+
+/* ── MARKET ── */
+.filter-chips{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.fchip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;background:var(–white);border:1px solid var(–border);color:var(–sub);cursor:pointer}
+.fchip.active{background:var(–blue);border-color:var(–blue);color:#fff;font-weight:600}
+.order-row{display:flex;align-items:center;gap:10px;background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:13px;margin-bottom:8px}
+.order-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0}
+.order-badge.BUY{background:var(–adim);color:var(–accent)}
+.order-badge.SELL{background:var(–rdim);color:var(–red)}
+.order-ticker{font-size:14px;font-weight:600}
+.order-user{font-size:11px;color:var(–muted);margin-top:1px}
+.order-right{margin-left:auto;text-align:right}
+.order-price{font-size:14px;font-weight:600;color:var(–gold)}
+.order-qty{font-size:11px;color:var(–sub);margin-top:1px}
+.match-btn{padding:7px 12px;border:none;border-radius:var(–radius-xs);font-family:var(–font);font-size:11px;font-weight:600;cursor:pointer;margin-left:8px;flex-shrink:0}
+.post-btn{width:100%;padding:14px;background:var(–white);border:2px dashed var(–border2);border-radius:var(–radius-sm);font-family:var(–font);font-size:14px;font-weight:500;color:var(–blue);cursor:pointer;margin-top:4px}
+
+/* ── PORTFOLIO ── */
+.port-hero{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:22px;text-align:center;margin-bottom:16px}
+.port-hero-label{font-size:12px;font-weight:500;color:var(–muted);letter-spacing:.3px;text-transform:uppercase}
+.port-hero-val{font-size:40px;font-weight:700;letter-spacing:-.5px;margin:6px 0;font-variant-numeric:tabular-nums}
+.port-hero-sub{font-size:13px;color:var(–sub)}
+.holding-item{display:flex;align-items:center;gap:12px;background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:13px;margin-bottom:8px;cursor:pointer}
+.h-logo-sm{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.h-name{font-size:14px;font-weight:600}
+.h-sub{font-size:11px;color:var(–sub);margin-top:1px}
+.h-right{margin-left:auto;text-align:right}
+.h-val{font-size:14px;font-weight:600}
+.h-chg{font-size:11px;margin-top:2px;font-weight:500}
+.activity-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(–border)}
+.activity-row:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.act-text{font-size:13px;font-weight:500}
+.act-sub{font-size:11px;color:var(–sub);margin-top:1px}
+.act-amt{margin-left:auto;font-size:13px;font-weight:600}
+
+/* ── REWARDS ── */
+.rw-hero{background:linear-gradient(145deg,#1D1D1F,#2D2D30);border-radius:var(–radius);padding:20px;margin-bottom:14px;text-align:center}
+.rw-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.rw-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.5}
+.rw-balance{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 18px}
+.rw-bal-val{font-size:26px;font-weight:700;color:var(–gold)}
+.rw-bal-label{font-size:11px;color:rgba(255,255,255,.5)}
+.pack-item{background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.pack-item.featured{border-color:rgba(255,149,0,.4);background:linear-gradient(135deg,#FFFBF0,var(–white))}
+.pack-icon{width:46px;height:46px;background:var(–bg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.pack-pts{font-size:17px;font-weight:700;color:var(–gold)}
+.pack-sub{font-size:11px;color:var(–sub);margin-top:1px}
+.pack-right{margin-left:auto;text-align:right}
+.pack-price{font-size:16px;font-weight:700}
+.pack-note{font-size:11px;color:var(–accent);margin-top:2px}
+.pack-badge-tag{font-size:9px;font-weight:700;background:var(–gold);color:#fff;padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block}
+.reward-item{background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:14px;margin-bottom:8px}
+.reward-top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.reward-icon{width:46px;height:46px;background:var(–bg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.reward-name{font-size:14px;font-weight:600}
+.reward-brand{font-size:11px;color:var(–sub);margin-top:1px}
+.reward-desc{font-size:12px;color:var(–sub);line-height:1.55;margin-bottom:10px}
+.reward-footer{display:flex;align-items:center;justify-content:space-between}
+.reward-pts-val{font-size:15px;font-weight:700;color:var(–gold)}
+.redeem-btn{background:var(–purple);color:#fff;font-family:var(–font);font-size:12px;font-weight:600;border:none;border-radius:var(–radius-xs);padding:8px 14px;cursor:pointer}
+.redeem-btn:disabled{background:var(–muted);cursor:not-allowed;opacity:.5}
+.lb-item{display:flex;align-items:center;gap:12px;background:var(–white);border:1px solid var(–border);border-radius:var(–radius-sm);padding:12px 14px;margin-bottom:8px}
+.lb-rank{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.lb-av{width:34px;height:34px;border-radius:50%;background:var(–bdim);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(–blue);flex-shrink:0}
+.lb-name{font-size:13px;font-weight:600}
+.lb-sub{font-size:11px;color:var(–sub);margin-top:1px}
+.lb-right{margin-left:auto;text-align:right}
+.lb-pts{font-size:14px;font-weight:700;color:var(–gold)}
+.lb-chg{font-size:11px;margin-top:2px;font-weight:500}
+
+/* ── LIST ── */
+.stepper{display:flex;margin-bottom:20px}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.step-dot{width:26px;height:26px;border-radius:50%;background:var(–bg);border:2px solid var(–border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(–muted);transition:all .25s}
+.step-dot.done{background:var(–blue);border-color:var(–blue);color:#fff}
+.step-name{font-size:9px;color:var(–muted);font-weight:500}
+.step-name.done{color:var(–blue)}
+.form-section{background:var(–white);border:1px solid var(–border);border-radius:var(–radius);padding:16px;margin-bottom:12px}
+.field{margin-bottom:13px}.field:last-child{margin-bottom:0}
+.field-label{font-size:12px;font-weight:500;color:var(–sub);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;background:var(–bg);border:1px solid var(–border);border-radius:var(–radius-xs);padding:11px 13px;font-family:var(–font);font-size:14px;color:var(–text);outline:none;transition:border-color .15s;appearance:none}
+.field input:focus,.field textarea:focus{border-color:var(–blue)}
+.field input::placeholder,.field textarea::placeholder{color:var(–muted)}
+.field textarea{resize:none;height:72px;line-height:1.5}
+.disclaimer-box{background:#FFFBF0;border:1px solid rgba(255,149,0,.2);border-radius:var(–radius-xs);padding:12px;margin-bottom:14px;font-size:12px;color:var(–gold);line-height:1.6}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:flex-end;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(–white);border-top-left-radius:24px;border-top-right-radius:24px;padding:20px 20px 30px;width:100%;max-width:430px;margin:0 auto;max-height:92vh;overflow-y:auto}
+.modal-sheet::-webkit-scrollbar{display:none}
+.modal-handle{width:36px;height:4px;background:var(–border);border-radius:2px;margin:0 auto 18px}
+.modal-title{font-size:18px;font-weight:700;letter-spacing:-.2px;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(–sub);margin-bottom:18px;line-height:1.5}
+.seg-control{display:flex;background:var(–bg);border-radius:10px;padding:3px;margin-bottom:18px;gap:3px}
+.seg-btn{flex:1;padding:8px;border:none;background:transparent;font-family:var(–font);font-size:13px;font-weight:500;color:var(–muted);border-radius:8px;cursor:pointer;transition:all .18s}
+.seg-btn.active{background:var(–white);color:var(–text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.m-label{font-size:12px;font-weight:500;color:var(–sub);margin-bottom:5px}
+.m-input,.m-select,.m-textarea{width:100%;background:var(–bg);border:1px solid var(–border);border-radius:var(–radius-xs);padding:11px 13px;font-family:var(–font);font-size:14px;color:var(–text);outline:none;margin-bottom:12px;appearance:none;transition:border-color .15s}
+.m-input:focus,.m-textarea:focus{border-color:var(–blue)}
+.m-input::placeholder,.m-textarea::placeholder{color:var(–muted)}
+.m-textarea{resize:none;height:72px;line-height:1.5}
+.qty-field{width:100%;background:var(–bg);border:1px solid var(–border);border-radius:var(–radius-xs);padding:14px;font-family:var(–font);font-size:28px;font-weight:700;color:var(–text);text-align:center;outline:none;margin-bottom:14px;transition:border-color .15s}
+.qty-field:focus{border-color:var(–blue)}
+.modal-kv-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(–border)}
+.modal-kv-row:last-of-type{border-bottom:none;margin-bottom:12px}
+.modal-kv-label{font-size:13px;color:var(–sub)}
+.modal-kv-val{font-size:14px;font-weight:600}
+.modal-kv-total{font-size:18px;font-weight:700;color:var(–gold)}
+.game-note{background:#F5F0FF;border:1px solid rgba(175,82,222,.15);border-radius:var(–radius-xs);padding:10px 12px;font-size:11px;color:var(–purple);line-height:1.55;margin-bottom:14px}
+.success-view{text-align:center;padding:16px 0 8px}
+.success-emoji{font-size:50px;margin-bottom:12px}
+.success-title{font-size:20px;font-weight:700;margin-bottom:7px;letter-spacing:-.2px}
+.success-body{font-size:13px;color:var(–sub);line-height:1.6;margin-bottom:18px}
+.success-card{background:var(–bg);border-radius:var(–radius-xs);padding:13px;text-align:left;margin-bottom:18px}
+.sc-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(–border)}
+.sc-row:last-child{border-bottom:none}
+.sc-label{font-size:12px;color:var(–muted)}
+.sc-val{font-size:12px;font-weight:600}
+.cancel-txt{display:block;text-align:center;color:var(–muted);font-size:14px;margin-top:12px;cursor:pointer;padding-bottom:4px}
+
+/* TOAST */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(–text);color:#fff;padding:11px 20px;border-radius:12px;font-weight:600;font-size:13px;z-index:600;transition:transform .28s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ DISCOVER ═══ -->
+
+  <div class="screen active" id="screen-discover">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="brand">
+          <svg class="brand-logo" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="11" stroke="#06C270" stroke-width="2.2" stroke-dasharray="52 17" stroke-linecap="round" transform="rotate(-115 16 16)"/>
+            <polyline points="16,6 22,12 16,12" fill="none" stroke="#06C270" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="22" y1="12" x2="22" y2="20" stroke="#06C270" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="brand-name">Open<span>Round</span></span>
+        </div>
+        <div class="topbar-right">
+          <div class="pts-chip" onclick="switchTab('rewards',document.querySelectorAll('.nav-item')[3])">
+            <span>🪙</span><span class="pts-chip-val" id="hdr-pts">0</span>
+          </div>
+          <div class="avatar">JD</div>
+        </div>
+      </div>
+    </div>
+
+```
+<div class="hero">
+  <div class="hero-tag">🔓 Private equity for all.</div>
+  <div class="hero-title">Invest in tomorrow's<br>biggest companies.</div>
+  <div class="hero-sub">Real data. Real founders. Register interest before the IPO.</div>
+</div>
+
+<div class="game-chip" onclick="switchTab('rewards',document.querySelectorAll('.nav-item')[3])">
+  <div class="game-chip-icon">🎮</div>
+  <div>
+    <div class="game-chip-title">Trade with OR Points — it's a game.</div>
+    <div class="game-chip-sub">Redeem points for real Amazon, Netflix & Apple rewards.</div>
+  </div>
+  <button class="game-chip-btn">Get Points</button>
+</div>
+
+<div class="search-wrap">
+  <span class="search-icon">⌕</span>
+  <input type="text" id="search-input" placeholder="Search companies…" oninput="filterCos()">
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-box-val">7</div><div class="stat-box-label">Listed</div></div>
+  <div class="stat-box"><div class="stat-box-val" id="stat-int">0</div><div class="stat-box-label">Interests</div></div>
+  <div class="stat-box"><div class="stat-box-val" id="stat-trd">0</div><div class="stat-box-label">Trades</div></div>
+</div>
+
+<div style="padding:0 20px">
+  <div class="label">High-Potential Pre-IPO</div>
+  <div class="co-list" id="company-list" style="padding:0"></div>
+</div>
+```
+
+  </div>
+
+  <!-- ═══ MARKET ═══ -->
+
+  <div class="screen" id="screen-market">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="brand"><svg class="brand-logo" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="#06C270" stroke-width="2.2" stroke-dasharray="52 17" stroke-linecap="round" transform="rotate(-115 16 16)"/><polyline points="16,6 22,12 16,12" fill="none" stroke="#06C270" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="22" y1="12" x2="22" y2="20" stroke="#06C270" stroke-width="2" stroke-linecap="round"/></svg><span class="brand-name">Open<span>Round</span></span></div>
+        <div class="topbar-right"><div class="pts-chip"><span>🪙</span><span class="pts-chip-val" id="mkt-pts">0</span></div><div class="avatar">JD</div></div>
+      </div>
+    </div>
+    <div style="padding:0 20px">
+      <div class="section-title">Trade Board</div>
+      <div class="section-sub">Peer-to-peer · trade with OR Points</div>
+      <div class="filter-chips">
+        <div class="fchip active" onclick="filterOrders('all',this)">All</div>
+        <div class="fchip" onclick="filterOrders('BUY',this)">Buy Orders</div>
+        <div class="fchip" onclick="filterOrders('SELL',this)">Sell Orders</div>
+      </div>
+      <div id="order-list"></div>
+      <button class="post-btn" onclick="toast('Order posted! 🎮')">+ Post an Order</button>
+    </div>
+  </div>
+
+  <!-- ═══ PORTFOLIO ═══ -->
+
+  <div class="screen" id="screen-portfolio">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="brand"><svg class="brand-logo" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="#06C270" stroke-width="2.2" stroke-dasharray="52 17" stroke-linecap="round" transform="rotate(-115 16 16)"/><polyline points="16,6 22,12 16,12" fill="none" stroke="#06C270" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="22" y1="12" x2="22" y2="20" stroke="#06C270" stroke-width="2" stroke-linecap="round"/></svg><span class="brand-name">Open<span>Round</span></span></div>
+        <div class="topbar-right"><div class="pts-chip"><span>🪙</span><span class="pts-chip-val" id="port-pts-hdr">0</span></div><div class="avatar">JD</div></div>
+      </div>
+    </div>
+    <div style="padding:0 20px">
+      <div class="section-title">My Portfolio</div>
+      <div class="port-hero">
+        <div class="port-hero-label">Portfolio Value</div>
+        <div class="port-hero-val" id="port-val">0 pts</div>
+        <div class="port-hero-sub" id="port-cash">Free cash: 0 🪙</div>
+        <div style="margin-top:8px"><span class="pill up">▲ Start trading to earn!</span></div>
+      </div>
+      <div class="label">Holdings</div>
+      <div id="holdings-list"></div>
+      <div class="label" style="margin-top:16px">Activity</div>
+      <div id="activity-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ REWARDS ═══ -->
+
+  <div class="screen" id="screen-rewards">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="brand"><svg class="brand-logo" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="#06C270" stroke-width="2.2" stroke-dasharray="52 17" stroke-linecap="round" transform="rotate(-115 16 16)"/><polyline points="16,6 22,12 16,12" fill="none" stroke="#06C270" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="22" y1="12" x2="22" y2="20" stroke="#06C270" stroke-width="2" stroke-linecap="round"/></svg><span class="brand-name">Open<span>Round</span></span></div>
+        <div class="topbar-right"><div class="pts-chip"><span>🪙</span><span class="pts-chip-val" id="rw-pts-hdr">0</span></div><div class="avatar">JD</div></div>
+      </div>
+    </div>
+    <div style="padding:0 20px">
+      <div class="section-title">Rewards</div>
+      <div class="rw-hero">
+        <div class="rw-title">🪙 OR Points</div>
+        <div class="rw-sub">Buy points to trade. Earn by trading well.<br>Redeem for real gift cards & perks.</div>
+        <div class="rw-balance"><span style="font-size:22px">🪙</span><div><div class="rw-bal-val" id="rw-pts-big">0</div><div class="rw-bal-label">Available</div></div></div>
+      </div>
+      <div class="label">Get Points</div>
+      <div id="packs-list"></div>
+      <div class="label">Redeem</div>
+      <div id="rewards-list"></div>
+      <div class="label">🏆 Leaderboard</div>
+      <div id="lb-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ LIST ═══ -->
+
+  <div class="screen" id="screen-list">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="brand"><svg class="brand-logo" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="#06C270" stroke-width="2.2" stroke-dasharray="52 17" stroke-linecap="round" transform="rotate(-115 16 16)"/><polyline points="16,6 22,12 16,12" fill="none" stroke="#06C270" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="22" y1="12" x2="22" y2="20" stroke="#06C270" stroke-width="2" stroke-linecap="round"/></svg><span class="brand-name">Open<span>Round</span></span></div>
+        <div class="topbar-right"><div class="pts-chip"><span>🪙</span><span class="pts-chip-val" id="list-pts-hdr">0</span></div><div class="avatar">JD</div></div>
+      </div>
+    </div>
+    <div style="padding:0 20px">
+      <div class="section-title">List Your Company</div>
+      <div class="section-sub">Get discovered by thousands of investors</div>
+      <div class="stepper">
+        <div class="step"><div class="step-dot done" id="dot-0">1</div><div class="step-name done">Details</div></div>
+        <div class="step"><div class="step-dot" id="dot-1">2</div><div class="step-name" id="sn-1">Finance</div></div>
+        <div class="step"><div class="step-dot" id="dot-2">3</div><div class="step-name" id="sn-2">Docs</div></div>
+        <div class="step"><div class="step-dot" id="dot-3">4</div><div class="step-name" id="sn-3">Review</div></div>
+      </div>
+      <div class="form-section">
+        <div class="field"><div class="field-label">Company Name</div><input type="text" placeholder="e.g. Acme Technologies"></div>
+        <div class="field"><div class="field-label">Ticker Symbol</div><input type="text" placeholder="e.g. ACME" maxlength="5" style="text-transform:uppercase"></div>
+        <div class="field"><div class="field-label">Sector</div><input type="text" placeholder="e.g. FinTech, AI, Defence…"></div>
+        <div class="field"><div class="field-label">Fundraising Goal (USD)</div><input type="number" placeholder="500000"></div>
+        <div class="field"><div class="field-label">Company Valuation (USD)</div><input type="number" placeholder="5000000"></div>
+        <div class="field"><div class="field-label">About Your Company</div><textarea placeholder="What problem do you solve?"></textarea></div>
+      </div>
+      <div class="disclaimer-box">⚖️ Subject to Regulation CF (17 CFR 227). Max raise $5M/year. Audited financials required over $1.235M. Please consult a securities attorney.</div>
+      <button class="btn-full" onclick="advanceStep()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ═══ DETAIL ═══ -->
+
+  <div id="detail">
+    <div class="back-row" onclick="closeDetail()">
+      <span class="back-chevron">‹</span>
+      <span class="back-label">Back</span>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+
+  <nav>
+    <div class="nav-item active" onclick="switchTab('discover',this)"><div class="ni">◈</div><div class="nl">Discover</div></div>
+    <div class="nav-item" onclick="switchTab('market',this)"><div class="ni">⇅</div><div class="nl">Market</div></div>
+    <div class="nav-item" onclick="switchTab('portfolio',this)"><div class="ni">◎</div><div class="nl">Portfolio</div></div>
+    <div class="nav-item" onclick="switchTab('rewards',this)"><div class="ni">🪙</div><div class="nl">Rewards</div></div>
+    <div class="nav-item" onclick="switchTab('list',this)"><div class="ni">＋</div><div class="nl">List</div></div>
+  </nav>
+</div>
+
+<!-- MODAL -->
+
+<div class="modal-overlay" id="modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ══ DATA ══
+const COS = [
+{id:1,name:'Anduril Industries',ticker:'ANDR',sector:'Defence Tech',stage:'Series G',logo:'⚔️',color:'#1C1C1E',raised:'$7.0B',valuation:'$84B',ptPrice:2100,change:+24.6,interests:1840,buyPct:84,
+tagline:'The next Lockheed Martin — built in Silicon Valley.',
+desc:'Founded by Palmer Luckey (creator of Oculus VR), Anduril is reinventing defence technology with AI-powered autonomous systems. Backed by the US DoD, Founders Fund and Andreessen Horowitz. Building Arsenal-1, a 5M sq ft autonomous weapons factory in Ohio.',
+burn:{months:['Jan','Feb','Mar','Apr','May','Jun'],revenue:[70,80,88,95,105,115],expenses:[85,90,92,95,96,98]},
+projections:[{year:'2024',rev:'$1.0B',note:'Doubled YoY'},{year:'2025',rev:'$1.8B',note:'Est. +80%'},{year:'2026',rev:'$3.2B',note:'Est. +78%'},{year:'2027',rev:'$5.0B',note:'Est. +56%'}],
+traction:{users:'US DoD + NATO',revenue:'$1.0B',growth:'+100% YoY',runway:'4+ yrs'},
+scores:{team:96,product:93,market:98,financial:79,overall:91},
+founders:[{name:'Palmer Luckey',role:'Founder',avatar:'PL',bio:'Created Oculus VR at 19, sold to Facebook for $2B. Founded Anduril in 2017 to modernise US defence. Has personal relationships at the highest levels of the Trump administration.',edu:['Self-taught / Chapman University'],exits:['Oculus VR — $2B to Meta, 2014'],rep:4.7}],
+comparables:[{name:'Lockheed Martin (1995)',logo:'LM',color:'#003087',stage:'Early listed',valuation:'$8B',returnX:'60x',invested:'$10K → $600K',desc:'Largest defence contractor. Anduril targets same government customers with faster, cheaper tech.'},{name:'Palantir (2003)',logo:'PL',color:'#555',stage:'Series B',valuation:'$700M',returnX:'42x',invested:'$10K → $420K',desc:'Defence software. Listed 2020. Direct comparable business model.'}]},
+
+{id:2,name:'Deel',ticker:'DEEL',sector:'HR / FinTech',stage:'Series D',logo:'🌍',color:'#FF5A1F',raised:'$679M',valuation:'$12B',ptPrice:680,change:+9.2,interests:920,buyPct:74,
+tagline:'The operating system for global teams.',
+desc:'Deel makes it simple to hire, pay and manage people in 150+ countries — handling local payroll, tax compliance and benefits automatically. Founded at MIT in 2019, it is one of the fastest growing SaaS companies in history, reaching $500M ARR in under 4 years.',
+burn:{months:['Jan','Feb','Mar','Apr','May','Jun'],revenue:[88,95,102,110,118,128],expenses:[72,76,80,84,88,93]},
+projections:[{year:'2024',rev:'$800M',note:'Actual'},{year:'2025',rev:'$1.1B',note:'Est. +38%'},{year:'2026',rev:'$1.5B',note:'Est. +36%'},{year:'2027',rev:'$2.1B',note:'Est. +40%'}],
+traction:{users:'25,000+ companies',revenue:'$800M',growth:'+38% YoY',runway:'5+ yrs'},
+scores:{team:92,product:94,market:95,financial:87,overall:92},
+founders:[{name:'Alex Bouaziz',role:'CEO & Co-Founder',avatar:'AB',bio:'MIT graduate. Founded Deel at 25. Grew it to $12B in 5 years. Previously built Lifeslyce, an event platform. Named Forbes 30 Under 30. IPO planned for 2026-2027.',edu:['MIT'],exits:['Lifeslyce (early exit)'],rep:4.8}],
+comparables:[{name:'Workday (2005)',logo:'WD',color:'#0075C9',stage:'Series B',valuation:'$100M',returnX:'290x',invested:'$10K → $2.9M',desc:'HR SaaS giant. Listed 2012 at $4.5B. Same enterprise HR market.'},{name:'Rippling (2016)',logo:'RP',color:'#E34040',stage:'Series A',valuation:'$250M',returnX:'80x+',invested:'$10K → $800K+',desc:'Deel\'s direct competitor. Currently valued at $13.5B.'}]},
+
+{id:3,name:'Quantinuum',ticker:'QNTM',sector:'Quantum Computing',stage:'Series B',logo:'⚛️',color:'#6E3AFF',raised:'$1.16B',valuation:'$10B',ptPrice:820,change:+31.4,interests:730,buyPct:77,
+tagline:'The world\'s most powerful quantum computer.',
+desc:'Formed from the merger of Honeywell Quantum Solutions and Cambridge Quantum in 2021. Backed by $600M from Nvidia in 2025. Quantinuum builds quantum hardware and software for drug discovery, cybersecurity, and financial modelling — a technology that could render today\'s encryption obsolete.',
+burn:{months:['Jan','Feb','Mar','Apr','May','Jun'],revenue:[18,21,24,27,31,36],expenses:[35,36,37,38,38,39]},
+projections:[{year:'2025',rev:'$150M',note:'Est.'},{year:'2026',rev:'$320M',note:'Est. +113%'},{year:'2027',rev:'$700M',note:'Est. +119%'},{year:'2028',rev:'$1.5B',note:'Est. +114%'}],
+traction:{users:'50+ enterprise clients',revenue:'$150M est.',growth:'+80% YoY',runway:'6+ yrs'},
+scores:{team:97,product:91,market:96,financial:72,overall:89},
+founders:[{name:'Ilyas Khan',role:'CEO',avatar:'IK',bio:'Co-founder of Cambridge Quantum. Oxford-educated. Pioneer in quantum natural language processing. Led merger with Honeywell in 2021. Widely considered the most credible voice in commercial quantum computing.',edu:['Oxford University'],exits:['Cambridge Quantum (merged into Quantinuum)'],rep:4.9}],
+comparables:[{name:'IonQ (2015)',logo:'IQ',color:'#00A8E8',stage:'Series A',valuation:'$350M',returnX:'18x',invested:'$10K → $180K',desc:'Listed 2021 via SPAC. Quantinuum has significantly more advanced hardware.'},{name:'IBM Quantum (2016)',logo:'IBM',color:'#006699',stage:'Internal division',valuation:'N/A',returnX:'N/A',invested:'N/A',desc:'Largest competitor. IBM\'s quantum division valued at tens of billions if spun out.'}]},
+
+{id:4,name:'Rippling',ticker:'RPLG',sector:'HR / SaaS',stage:'Series F',logo:'⚡',color:'#E34040',raised:'$1.4B',valuation:'$13.5B',ptPrice:750,change:+7.8,interests:1100,buyPct:71,
+tagline:'One platform to run your entire company.',
+desc:'Rippling unifies HR, IT, and Finance into one platform. When you hire someone, Rippling automatically sets up their payroll, laptop, email, Slack, Zoom and health insurance — in 90 seconds. Used by 15,000+ businesses including Superhuman and Attic.',
+burn:{months:['Jan','Feb','Mar','Apr','May','Jun'],revenue:[62,68,74,81,89,98],expenses:[70,72,74,76,78,80]},
+projections:[{year:'2024',rev:'$600M',note:'Est.'},{year:'2025',rev:'$900M',note:'Est. +50%'},{year:'2026',rev:'$1.3B',note:'Est. +44%'},{year:'2027',rev:'$1.8B',note:'Est. +38%'}],
+traction:{users:'15,000+ businesses',revenue:'$600M est.',growth:'+50% YoY',runway:'4+ yrs'},
+scores:{team:94,product:96,market:93,financial:82,overall:91},
+founders:[{name:'Parker Conrad',role:'CEO & Co-Founder',avatar:'PC',bio:'Previously co-founded Zenefits (valued at $4.5B) before founding Rippling. Raised $1.4B despite the drama around his previous company. Paul Graham of YC called him one of the most talented founders he\'d ever met.',edu:['Harvard (dropped out)'],exits:['Zenefits (co-founded, $4.5B peak val)'],rep:4.6}],
+comparables:[{name:'Workday (2005)',logo:'WD',color:'#0075C9',stage:'Series B',valuation:'$100M',returnX:'290x',invested:'$10K → $2.9M',desc:'HR SaaS giant. Rippling doing in one platform what Workday took 10 years to do.'},{name:'ServiceNow (2004)',logo:'SN',color:'#62D84E',stage:'Series A',valuation:'$80M',returnX:'1,500x',invested:'$10K → $150K',desc:'IT workflow platform. Rippling combines HR + IT in one product.'}]},
+
+{id:5,name:'Skild AI',ticker:'SKLD',sector:'Robotics AI',stage:'Series B',logo:'🤖',color:'#FF6B00',raised:'$1.0B+',valuation:'$14B',ptPrice:1100,change:+42.1,interests:1420,buyPct:88,
+tagline:'The brain for every robot on Earth.',
+desc:'Skild AI is building a universal foundation model for robots — the equivalent of ChatGPT but for physical machines. Backed by SoftBank and Nvidia in talks to invest over $1B at $14B valuation (tripling its value in months). If they succeed, Skild becomes the operating system for the coming wave of humanoid robots.',
+burn:{months:['Jan','Feb','Mar','Apr','May','Jun'],revenue:[8,11,14,18,23,29],expenses:[22,24,25,26,27,28]},
+projections:[{year:'2025',rev:'$80M',note:'Est.'},{year:'2026',rev:'$280M',note:'Est. +250%'},{year:'2027',rev:'$900M',note:'Est. +221%'},{year:'2028',rev:'$2.5B',note:'Est. +178%'}],
+traction:{users:'20+ robot manufacturers',revenue:'$80M est.',growth:'+300% YoY',runway:'3+ yrs'},
+scores:{team:93,product:95,market:99,financial:70,overall:89},
+founders:[{name:'Deepak Pathak',role:'CEO & Co-Founder',avatar:'DP',bio:'Carnegie Mellon professor and former research scientist at Meta AI. One of the world\'s leading researchers in robot learning and AI. His research papers have been cited over 25,000 times.',edu:['CMU (Prof.)','IIT Kanpur'],exits:[],rep:4.8},{name:'Abhinav Gupta',role:'Co-Founder',avatar:'AG',bio:'Professor at CMU and Research Manager at Meta AI. Pioneer in self-supervised visual learning for robots. One of the most cited robotics researchers globally.',edu:['CMU (Prof.)'],exits:[],rep:4.9}],
+comparables:[{name:'Mobileye (2014)',logo:'ME',color:'#00A9CE',stage:'Series A',valuation:'$25M',returnX:'1,600x',invested:'$10K → $160K',desc:'AI for autonomous cars. Intel bought it for $15.3B in 2017. Skild is Mobileye for all robots.'},{name:'Figure AI (2022)',logo:'FA',color:'#111',stage:'Series B',valuation:'$2.6B',returnX:'5x+',invested:'$10K → $50K+',desc:'Humanoid robot startup backed by OpenAI & Bezos. Skild would power robots like Figure.'}]},
+
+{id:6,name:'Innovaccer',ticker:'INVC',sector:'Healthcare AI',stage:'Series E',logo:'💊',color:'#00B4D8',raised:'$375M',valuation:'$3.2B',ptPrice:460,change:+12.9,interests:640,buyPct:69,
+tagline:'AI that makes healthcare actually work.',
+desc:'Innovaccer builds an AI-powered data platform that unifies patient data across hospitals and clinics, enabling better care decisions and cutting admin waste. Used by 1,600+ healthcare facilities and 96,000+ physicians in the US. Healthcare is a $4.5T industry — and it runs on fax machines.',
+burn:{months:['Jan','Feb','Mar','Apr','May','Jun'],revenue:[38,42,46,50,55,60],expenses:[42,43,44,44,45,45]},
+projections:[{year:'2024',rev:'$280M',note:'Est.'},{year:'2025',rev:'$380M',note:'Est. +36%'},{year:'2026',rev:'$520M',note:'Est. +37%'},{year:'2027',rev:'$700M',note:'Est. +35%'}],
+traction:{users:'1,600+ health facilities',revenue:'$280M est.',growth:'+36% YoY',runway:'3+ yrs'},
+scores:{team:88,product:90,market:94,financial:80,overall:88},
+founders:[{name:'Abhinav Shashank',role:'CEO & Co-Founder',avatar:'AS',bio:'Founded Innovaccer at 22 straight out of IIT Delhi. Built it into the leading healthcare data platform in the US without ever having worked in healthcare before. Forbes 30 Under 30.',edu:['IIT Delhi'],exits:[],rep:4.5}],
+comparables:[{name:'Epic Systems (private)',logo:'EP',color:'#E91E63',stage:'N/A — private',valuation:'$10B+',returnX:'N/A',invested:'N/A',desc:'Biggest healthcare IT company. Innovaccer is the AI-native alternative.'},{name:'Veeva Systems (2007)',logo:'VS',color:'#F26524',stage:'Series A',valuation:'$50M',returnX:'500x',invested:'$10K → $50K',desc:'Healthcare SaaS. IPO\'d 2013 at $160M. Now worth $25B+.'}]},
+
+{id:7,name:'Upgrade',ticker:'UPGD',sector:'Neobank / Lending',stage:'Series F',logo:'💳',color:'#0D7377',raised:'$600M',valuation:'$6.3B',ptPrice:390,change:+5.4,interests:510,buyPct:62,
+tagline:'Banking built for real life.',
+desc:'Upgrade is a fintech combining a neobank with responsible credit products — personal loans, credit cards, and auto finance. 5M+ customers with $27B in loan originations. CEO Renaud Laplanche told CNBC in October 2025 an IPO could happen in 12–18 months. One of the most underrated fintech IPO candidates.',
+burn:{months:['Jan','Feb','Mar','Apr','May','Jun'],revenue:[95,100,106,112,118,125],expenses:[88,90,92,94,96,98]},
+projections:[{year:'2024',rev:'$700M',note:'Est.'},{year:'2025',rev:'$900M',note:'Est. +29%'},{year:'2026',rev:'$1.2B',note:'Est. +33%'},{year:'2027',rev:'$1.5B',note:'Est. +25%'}],
+traction:{users:'5M+ customers',revenue:'$700M est.',growth:'+29% YoY',runway:'3+ yrs'},
+scores:{team:87,product:85,market:88,financial:84,overall:86},
+founders:[{name:'Renaud Laplanche',role:'CEO & Co-Founder',avatar:'RL',bio:'Previously founded LendingClub — the first peer-to-peer lender, IPO\'d on NYSE at $9B in 2014. Left in 2016, founded Upgrade. His track record gives Upgrade rare credibility in the fintech lending space.',edu:['HEC Paris','Kent Law School'],exits:['LendingClub — IPO at $9B, 2014'],rep:4.6}],
+comparables:[{name:'LendingClub (2006)',logo:'LC',color:'#00B140',stage:'Series A',valuation:'$50M',returnX:'180x',invested:'$10K → $180K',desc:'Founded by same CEO. IPO\'d 2014 at $9B. Upgrade is doing the same thing better.'},{name:'SoFi (2011)',logo:'SF',color:'#7B2FBE',stage:'Series B',valuation:'$480M',returnX:'28x',invested:'$10K → $280K',desc:'Neobank competitor. IPO\'d 2021. Upgrade has stronger credit products.'}]}
+];
+
+const ORDERS=[
+  {ticker:'ANDR',type:'BUY',qty:3,ptPrice:2050,user:'trader_112'},
+  {ticker:'DEEL',type:'SELL',qty:15,ptPrice:700,user:'trader_884'},
+  {ticker:'SKLD',type:'BUY',qty:8,ptPrice:1080,user:'trader_229'},
+  {ticker:'QNTM',type:'SELL',qty:20,ptPrice:840,user:'trader_557'},
+  {ticker:'RPLG',type:'BUY',qty:10,ptPrice:740,user:'trader_993'},
+  {ticker:'INVC',type:'SELL',qty:25,ptPrice:475,user:'trader_661'},
+];
+
+const PACKS=[
+  {id:'starter',icon:'🪙',label:'Starter Pack',pts:1000,price:'Free',note:'Claim once',badge:''},
+  {id:'basic',icon:'💰',label:'Basic',pts:5000,price:'$0.99',note:'+500 bonus',badge:''},
+  {id:'pro',icon:'💎',label:'Pro',pts:15000,price:'$2.49',note:'+3,000 bonus',badge:'POPULAR'},
+  {id:'whale',icon:'🐳',label:'Whale',pts:50000,price:'$6.99',note:'+15,000 bonus',badge:'BEST VALUE'},
+];
+
+const REWARDS=[
+  {id:'amazon10',icon:'🛍️',name:'$10 Amazon Voucher',brand:'Amazon',desc:'Delivered to your email within 24 hours.',pts:8000},
+  {id:'starbucks5',icon:'☕',name:'$5 Starbucks Card',brand:'Starbucks',desc:'Your next coffee, on us.',pts:4000},
+  {id:'netflix',icon:'🎬',name:'1 Month Netflix',brand:'Netflix',desc:'Stream anything, standard plan.',pts:12000},
+  {id:'apple25',icon:'🍎',name:'$25 Apple Gift Card',brand:'Apple',desc:'App Store, iTunes, Apple TV+.',pts:20000},
+  {id:'early',icon:'🚀',name:'Early Investor Access',brand:'OpenRound',desc:'Priority access when real rounds open.',pts:25000},
+];
+
+const LBOARD=[
+  {rank:'🥇',name:'venture_vic',av:'VV',pts:'284,400',chg:'+34.2%'},
+  {rank:'🥈',name:'alpha_trader',av:'AT',pts:'198,100',chg:'+28.7%'},
+  {rank:'🥉',name:'crypto_king',av:'CK',pts:'142,600',chg:'+22.4%'},
+  {rank:'4',name:'moonshot_m',av:'MM',pts:'89,200',chg:'+18.1%'},
+  {rank:'5',name:'you (JD)',av:'JD',pts:'—',chg:'—',isUser:true},
+];
+
+// ── STATE ──
+let S=JSON.parse(localStorage.getItem('or3')||JSON.stringify({pts:0,holdings:{},trades:[],interests:[],starterClaimed:false,totalTrades:0}));
+let CC=null,tmode='buy',lstep=0;
+function save(){localStorage.setItem('or3',JSON.stringify(S));}
+function pval(){return Object.entries(S.holdings).reduce((sum,[id,q])=>{const c=COS.find(x=>x.id===parseInt(id));return sum+(c?c.ptPrice*q:0);},0);}
+
+function syncPts(){
+  const p=S.pts.toLocaleString();
+  ['hdr-pts','mkt-pts','port-pts-hdr','rw-pts-hdr','rw-pts-big','list-pts-hdr'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=p;});
+  const si=document.getElementById('stat-int');if(si)si.textContent=S.interests.length;
+  const st=document.getElementById('stat-trd');if(st)st.textContent=S.totalTrades;
+}
+
+// ── RENDER COMPANIES ──
+function renderCos(list){
+  document.getElementById('company-list').innerHTML=list.map(c=>{
+    const own=S.holdings[c.id]||0;
+    return `<div class="co-card" onclick="openD(${c.id})">
+      <div class="co-top">
+        <div class="co-logo" style="background:${c.color}15;border:1px solid ${c.color}25">${c.logo}</div>
+        <div style="flex:1"><div class="co-name">${c.name}</div><div class="co-meta">${c.ticker} · ${c.sector} · ${c.stage}</div></div>
+        <span class="pill ${c.change>0?'up':'dn'}">${c.change>0?'▲':'▼'} ${Math.abs(c.change).toFixed(1)}%</span>
+      </div>
+      <div class="co-desc">${c.tagline}</div>
+      <div class="co-stats">
+        <div class="co-stat"><div class="co-stat-val">${c.valuation}</div><div class="co-stat-label">Valuation</div></div>
+        <div class="co-stat"><div class="co-stat-val" style="color:var(--accent)">${c.scores.overall}</div><div class="co-stat-label">OR Score</div></div>
+        <div class="co-stat"><div class="co-stat-val" style="color:${own>0?'var(--gold)':'var(--muted)'}">${own||'—'}</div><div class="co-stat-label">You Own</div></div>
+      </div>
+      <div class="co-footer">
+        <div class="co-pts"><span>🪙</span><span class="co-pts-val">${c.ptPrice.toLocaleString()}</span><span class="co-pts-label">&nbsp;pts/share</span></div>
+        <div class="sent-mini">
+          <div class="sent-mini-bar"><div class="sent-mini-buy" style="width:${c.buyPct}%"></div><div class="sent-mini-sell" style="width:${100-c.buyPct}%"></div></div>
+          <span class="sent-mini-label">${c.buyPct}% bull</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterCos(){const q=document.getElementById('search-input').value.toLowerCase();renderCos(COS.filter(c=>c.name.toLowerCase().includes(q)||c.sector.toLowerCase().includes(q)));}
+
+// ── DETAIL ──
+function openD(id){
+  CC=COS.find(c=>c.id===id);const c=CC;
+  const own=S.holdings[c.id]||0;
+  const ai=S.interests.some(i=>i.cid===c.id);
+  const ti=c.interests+S.interests.filter(i=>i.cid===c.id).length;
+  const mb=Math.max(...c.burn.revenue,...c.burn.expenses);
+  document.getElementById('detail-content').innerHTML=`
+    <div class="d-hero">
+      <div class="d-hero-top">
+        <div class="d-logo-lg" style="background:${c.color}12;border:1px solid ${c.color}20;font-size:28px">${c.logo}</div>
+        <div style="flex:1">
+          <div class="d-name">${c.name}</div>
+          <div class="d-sub">${c.ticker} · ${c.sector}</div>
+          <span class="badge-tag">${c.stage}</span>
+        </div>
+        <span class="pill ${c.change>0?'up':'dn'}">${c.change>0?'▲':'▼'} ${Math.abs(c.change).toFixed(1)}%</span>
+      </div>
+      <p style="font-size:14px;color:var(--sub);line-height:1.65">${c.desc}</p>
+    </div>
+
+    <div class="price-card">
+      <div class="price-card-top">
+        <div>
+          <div class="price-label">Share Price</div>
+          <div class="price-main">🪙 ${c.ptPrice.toLocaleString()}</div>
+          <div class="price-sub">pts per share · you own ${own}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="price-change" style="color:${c.change>0?'var(--accent)':'var(--red)'}">${c.change>0?'+':''}${c.change.toFixed(1)}%</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">OR Score ${c.scores.overall}/100</div>
+        </div>
+      </div>
+      <div class="trade-btns-row">
+        <button class="btn-primary" onclick="openTM('buy')">🪙 Buy Shares</button>
+        <button class="btn-secondary" onclick="openTM('sell')">Sell Shares</button>
+      </div>
+    </div>
+
+    <div class="sent-card">
+      <div class="sent-card-title">Community Sentiment Index</div>
+      <div class="sent-bar-full"><div class="sent-fill-buy" style="width:${c.buyPct}%"></div><div class="sent-fill-sell" style="width:${100-c.buyPct}%"></div></div>
+      <div class="sent-labels"><span class="sent-buy-lbl">▲ ${c.buyPct}% Bullish</span><span class="sent-sell-lbl">▼ ${100-c.buyPct}% Bearish</span></div>
+      <div class="sent-note">Based on ${(c.interests+S.totalTrades).toLocaleString()} player trades. We present this data to founders as proof of real investor demand.</div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-card-header"><div class="score-card-title">OpenRound Score</div><div class="score-total">${c.scores.overall}<span>/100</span></div></div>
+      ${[['Team & Founders',c.scores.team,'#007AFF'],['Product & Traction',c.scores.product,'#06C270'],['Market Size',c.scores.market,'#FF9500'],['Financial Health',c.scores.financial,'#FF3B30']].map(([l,s,col])=>`
+        <div class="score-row">
+          <div class="score-row-top"><span class="score-row-label">${l}</span><span class="score-row-num" style="color:${col}">${s}/100</span></div>
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${s}%;background:${col}"></div></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">Traction</div>
+      <div class="kv-grid">
+        <div class="kv"><div class="kv-val">${c.traction.users}</div><div class="kv-label">Users/Clients</div></div>
+        <div class="kv"><div class="kv-val">${c.traction.revenue}</div><div class="kv-label">Revenue</div></div>
+        <div class="kv"><div class="kv-val" style="color:var(--accent)">${c.traction.growth}</div><div class="kv-label">Growth</div></div>
+        <div class="kv"><div class="kv-val">${c.traction.runway}</div><div class="kv-label">Runway</div></div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">Revenue vs Burn (Monthly $M)</div>
+      <div class="burn-bars-wrap">${c.burn.months.map((_,i)=>`<div class="bar-pair"><div class="bar-r" style="height:${(c.burn.revenue[i]/mb*56).toFixed(0)}px"></div><div class="bar-b" style="height:${(c.burn.expenses[i]/mb*56).toFixed(0)}px"></div></div>`).join('')}</div>
+      <div class="burn-months">${c.burn.months.map(m=>`<div class="burn-month">${m}</div>`).join('')}</div>
+      <div class="burn-legend"><div class="bl"><div class="bldot" style="background:var(--accent)"></div>Revenue</div><div class="bl"><div class="bldot" style="background:var(--red)"></div>Burn</div></div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">Revenue Projections</div>
+      ${c.projections.map(p=>`<div class="proj-row"><span class="proj-yr">${p.year}</span><span class="proj-rev">${p.rev}</span><span class="proj-note">${p.note}</span></div>`).join('')}
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">Team & Founders</div>
+      ${c.founders.map(f=>`<div class="founder-item">
+        <div class="founder-av">${f.avatar}</div>
+        <div style="flex:1">
+          <div class="founder-name">${f.name}</div>
+          <div class="founder-role">${f.role}</div>
+          <div class="founder-bio">${f.bio}</div>
+          <div class="tags-row">
+            ${f.edu.map(e=>`<span class="ftag edu">🎓 ${e}</span>`).join('')}
+            ${f.exits.map(e=>`<span class="ftag exit">🚀 ${e}</span>`).join('')}
+          </div>
+          <div class="rep-row"><span class="rep-label">Reputation</span><span class="rep-stars">${'★'.repeat(Math.floor(f.rep))}${'☆'.repeat(5-Math.floor(f.rep))}</span><span class="rep-num">${f.rep}/5</span></div>
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">Comparable Companies</div>
+      ${c.comparables.map(comp=>`<div class="comp-item">
+        <div class="comp-header">
+          <div class="comp-logo-sm" style="background:${comp.color}15;border:1px solid ${comp.color}25;color:${comp.color}">${comp.logo}</div>
+          <div><div class="comp-name">${comp.name}</div><div class="comp-desc-txt">${comp.desc}</div></div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-stat"><div class="comp-stat-val">${comp.stage}</div><div class="comp-stat-label">Then</div></div>
+          <div class="comp-stat"><div class="comp-stat-val" style="color:var(--accent)">${comp.returnX}</div><div class="comp-stat-label">Return</div></div>
+          <div class="comp-stat"><div class="comp-stat-val">${comp.valuation}</div><div class="comp-stat-label">Val. then</div></div>
+        </div>
+        <div class="comp-insight-box">💡 $10,000 invested then: <strong>${comp.invested}</strong></div>
+      </div>`).join('')}
+    </div>
+
+    <div class="interest-box">
+      <div class="interest-box-title">${ai?'✓ Interest Registered':'Interested in investing for real?'}</div>
+      <div class="interest-box-sub">${ai?`We'll contact you when ${c.name} opens a real round.`:'No commitment. We\'ll take your interest directly to the founders.'}</div>
+      <div class="interest-ctr"><div class="interest-num">${ti.toLocaleString()}</div><div class="interest-txt">people have<br>registered interest</div></div>
+      ${ai?`<button class="btn-full disabled">Registered ✓</button>`:`<button class="btn-full green" onclick="openIM()">Register Real Interest →</button>`}
+    </div>
+    <div style="height:20px"></div>
+  `;
+  document.getElementById('detail').classList.add('open');
+  document.getElementById('detail').scrollTop=0;
+}
+function closeDetail(){document.getElementById('detail').classList.remove('open');}
+
+// ── TRADE MODAL ──
+function openTM(mode){
+  tmode=mode;const c=CC;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-title">${mode==='buy'?'Buy':'Sell'} ${c.name}</div>
+    <div class="modal-sub">${c.ticker} · ${c.ptPrice.toLocaleString()} pts/share</div>
+    <div class="seg-control">
+      <button class="seg-btn ${mode==='buy'?'active':''}" id="seg-buy" onclick="setTM('buy')">Buy</button>
+      <button class="seg-btn ${mode==='sell'?'active':''}" id="seg-sell" onclick="setTM('sell')">Sell</button>
+    </div>
+    <div class="m-label">Number of shares</div>
+    <input class="qty-field" type="number" id="qty-f" placeholder="0" min="1" oninput="updTotal()">
+    <div class="modal-kv-row"><span class="modal-kv-label">Price per share</span><span class="modal-kv-val" style="color:var(--gold)">🪙 ${c.ptPrice.toLocaleString()}</span></div>
+    <div class="modal-kv-row"><span class="modal-kv-label">Your balance</span><span class="modal-kv-val">🪙 ${S.pts.toLocaleString()}</span></div>
+    <div class="modal-kv-row"><span class="modal-kv-label">You own</span><span class="modal-kv-val">${S.holdings[c.id]||0} shares</span></div>
+    <div class="modal-kv-row"><span class="modal-kv-label">Total</span><span class="modal-kv-val modal-kv-total" id="trade-total">🪙 0</span></div>
+    <div class="game-note">🎮 This is a <strong>simulated trade</strong> using OR Points — not real money. No securities are being bought or sold.</div>
+    <button class="btn-full ${mode==='buy'?'green':''}" style="${mode==='sell'?'background:var(--red)':''}" id="trade-confirm-btn" onclick="confirmTrade()">${mode==='buy'?'Confirm Buy':'Confirm Sell'}</button>
+    <span class="cancel-txt" onclick="closeModal()">Cancel</span>`;
+  document.getElementById('modal').classList.add('open');
+}
+function setTM(m){
+  tmode=m;
+  document.getElementById('seg-buy').classList.toggle('active',m==='buy');
+  document.getElementById('seg-sell').classList.toggle('active',m==='sell');
+  const btn=document.getElementById('trade-confirm-btn');
+  btn.textContent=m==='buy'?'Confirm Buy':'Confirm Sell';
+  btn.style.background=m==='buy'?'var(--accent)':'var(--red)';
+  btn.className='btn-full';
+  updTotal();
+}
+function updTotal(){const q=parseInt(document.getElementById('qty-f').value)||0;document.getElementById('trade-total').textContent='🪙 '+(q*CC.ptPrice).toLocaleString();}
+function confirmTrade(){
+  const q=parseInt(document.getElementById('qty-f').value)||0;
+  if(!q||q<1){toast('Enter number of shares');return;}
+  const c=CC,cost=q*c.ptPrice;
+  if(tmode==='buy'){
+    if(S.pts<cost){toast('Not enough points — get more in Rewards 🪙');return;}
+    S.pts-=cost;S.holdings[c.id]=(S.holdings[c.id]||0)+q;
+    S.trades.unshift({ticker:c.ticker,type:'BUY',qty:q,pp:c.ptPrice,time:'just now'});
+    c.buyPct=Math.min(95,c.buyPct+1);
+  } else {
+    const own=S.holdings[c.id]||0;
+    if(own<q){toast('You only own '+own+' shares');return;}
+    S.pts+=cost;S.holdings[c.id]-=q;
+    if(!S.holdings[c.id])delete S.holdings[c.id];
+    S.trades.unshift({ticker:c.ticker,type:'SELL',qty:q,pp:c.ptPrice,time:'just now'});
+    c.buyPct=Math.max(5,c.buyPct-1);
+  }
+  S.totalTrades++;save();syncPts();renderCos(COS);closeModal();
+  toast(tmode==='buy'?'✓ Bought '+q+' '+c.ticker:'✓ Sold '+q+' '+c.ticker);
+}
+
+// ── INTEREST MODAL ──
+function openIM(){
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-title">Register Interest</div>
+    <div class="modal-sub">No commitment. We'll present this data to ${CC.name}'s founders.</div>
+    <div class="m-label">Full name</div><input class="m-input" id="mn" placeholder="First & last name">
+    <div class="m-label">Email address</div><input class="m-input" id="me" type="email" placeholder="you@example.com">
+    <div class="m-label">How much would you invest?</div>
+    <select class="m-select" id="ma"><option value="">Select…</option><option>$100–$500</option><option>$500–$2,000</option><option>$2,000–$10,000</option><option>$10,000–$50,000</option><option>$50,000+</option></select>
+    <div class="m-label">Your experience</div>
+    <select class="m-select" id="mex"><option value="">Select…</option><option>First time investor</option><option>Casual — stocks/ETFs</option><option>Experienced — 10+ investments</option><option>Professional / Accredited</option></select>
+    <div class="m-label">Why are you interested? (optional)</div>
+    <textarea class="m-textarea" id="mw" placeholder="What excites you about this company?"></textarea>
+
+```
+<button class="btn-full green" onclick="subInt()">Submit Interest →</button>
+<span class="cancel-txt" onclick="closeModal()">Cancel</span>`;
+```
+
+document.getElementById(‘modal’).classList.add(‘open’);
+}
+function subInt(){
+const n=document.getElementById(‘mn’).value.trim(),e=document.getElementById(‘me’).value.trim(),a=document.getElementById(‘ma’).value,ex=document.getElementById(‘mex’).value;
+if(!n||!e||!a||!ex){toast(‘Please fill all fields’);return;}
+S.interests.push({cid:CC.id,cname:CC.name,name:n,email:e,amount:a,exp:ex,date:new Date().toLocaleDateString()});
+S.pts+=500;save();syncPts();
+document.getElementById(‘modal-body’).innerHTML=` <div class="success-view"> <div class="success-emoji">🎉</div> <div class="success-title">Interest Registered!</div> <div class="success-body">We've recorded your interest in <strong>${CC.name}</strong>. When we have enough demand we'll approach the founders.<br><br><strong>+500 OR Points added</strong> as a thank you!</div> <div class="success-card"> <div class="sc-row"><span class="sc-label">Company</span><span class="sc-val">${CC.name}</span></div> <div class="sc-row"><span class="sc-label">Your name</span><span class="sc-val">${n}</span></div> <div class="sc-row"><span class="sc-label">Intent</span><span class="sc-val">${a}</span></div> <div class="sc-row"><span class="sc-label">Bonus</span><span class="sc-val" style="color:var(--gold)">+500 🪙</span></div> </div> <button class="btn-full" onclick="closeModal();closeDetail();renderCos(COS)">Back to Discover</button> </div>`;
+renderCos(COS);
+}
+function closeModal(){document.getElementById(‘modal’).classList.remove(‘open’);}
+
+// ── MARKET ──
+function renderOrders(list){
+document.getElementById(‘order-list’).innerHTML=list.map(o=>` <div class="order-row"> <span class="order-badge ${o.type}">${o.type}</span> <div style="margin-left:4px"><div class="order-ticker">${o.ticker}</div><div class="order-user">${o.user}</div></div> <div class="order-right"><div class="order-price">🪙 ${o.ptPrice.toLocaleString()}</div><div class="order-qty">${o.qty} shares</div></div> <button class="match-btn" style="background:${o.type==='BUY'?'var(--red)':'var(--accent)'};color:#fff" onclick="matchOrd(${o.ptPrice},${o.qty},'${o.type}')">${o.type==='BUY'?'Sell':'Buy'}</button> </div>`).join(’’);
+}
+function filterOrders(t,el){document.querySelectorAll(’.fchip’).forEach(c=>c.classList.remove(‘active’));el.classList.add(‘active’);renderOrders(t===‘all’?ORDERS:ORDERS.filter(o=>o.type===t));}
+function matchOrd(price,qty,type){
+const cost=price*qty;
+if(type===‘BUY’){S.pts+=cost;save();syncPts();toast(‘✓ Sold! +🪙’+cost.toLocaleString());}
+else{if(S.pts<cost){toast(‘Not enough points!’);return;}S.pts-=cost;save();syncPts();toast(‘✓ Bought! -🪙’+cost.toLocaleString());}
+}
+
+// ── PORTFOLIO ──
+function renderPort(){
+const pv=pval();
+document.getElementById(‘port-val’).textContent=pv.toLocaleString()+’ pts’;
+document.getElementById(‘port-cash’).textContent=‘Free cash: ‘+S.pts.toLocaleString()+’ 🪙’;
+const h=Object.entries(S.holdings);
+document.getElementById(‘holdings-list’).innerHTML=!h.length
+?’<div style="text-align:center;padding:28px;color:var(--muted);font-size:14px">No holdings yet — go buy some shares!</div>’
+:h.map(([id,qty])=>{
+const c=COS.find(x=>x.id===parseInt(id));if(!c)return’’;
+return `<div class="holding-item" onclick="openD(${c.id})"> <div class="h-logo-sm" style="background:${c.color}12;border:1px solid ${c.color}20">${c.logo}</div> <div><div class="h-name">${c.name}</div><div class="h-sub">${qty} shares · 🪙${c.ptPrice.toLocaleString()}/ea</div></div> <div class="h-right"><div class="h-val" style="color:var(--gold)">🪙${(qty*c.ptPrice).toLocaleString()}</div><div class="h-chg" style="color:${c.change>=0?'var(--accent)':'var(--red)'}">${c.change>=0?'▲':'▼'} ${Math.abs(c.change).toFixed(1)}%</div></div> </div>`;
+}).join(’’);
+const tr=S.trades.slice(0,8);
+document.getElementById(‘activity-list’).innerHTML=!tr.length
+?’<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px">No trades yet.</div>’
+:tr.map(a=>` <div class="activity-row"> <div class="act-dot" style="background:${a.type==='BUY'?'var(--accent)':'var(--red)'}"></div> <div><div class="act-text">${a.type} ${a.qty} ${a.ticker} @ 🪙${a.pp.toLocaleString()}</div><div class="act-sub">${a.time}</div></div> <div class="act-amt" style="color:${a.type==='BUY'?'var(--red)':'var(--accent)'}">${a.type==='BUY'?'-':'+'}🪙${(a.qty*a.pp).toLocaleString()}</div> </div>`).join(’’);
+}
+
+// ── REWARDS ──
+function renderRewards(){
+const pts=S.pts;
+document.getElementById(‘packs-list’).innerHTML=PACKS.map(p=>` <div class="pack-item ${p.id==='pro'?'featured':''}" onclick="buyPack('${p.id}')"> <div class="pack-icon">${p.icon}</div> <div><div class="pack-pts">🪙 ${p.pts.toLocaleString()}</div><div class="pack-sub">${p.label} · ${p.note}</div>${p.badge?`<div class="pack-badge-tag">${p.badge}</div>`:''}</div> <div class="pack-right"> <div class="pack-price">${p.price}</div> ${p.id==='starter'?`<div class="pack-note">${S.starterClaimed?‘✓ Claimed’:‘Tap to claim’}</div>`:`<div class="pack-note">in-app</div>`} </div> </div>`).join(’’);
+document.getElementById(‘rewards-list’).innerHTML=REWARDS.map(r=>` <div class="reward-item"> <div class="reward-top"><div class="reward-icon">${r.icon}</div><div><div class="reward-name">${r.name}</div><div class="reward-brand">${r.brand}</div></div></div> <div class="reward-desc">${r.desc}</div> <div class="reward-footer"> <span class="reward-pts-val">🪙 ${r.pts.toLocaleString()}</span> <button class="redeem-btn" ${pts<r.pts?'disabled':''} onclick="redeem('${r.id}',${r.pts},'${r.name}')">${pts>=r.pts?'Redeem':'Need more'}</button> </div> </div>`).join(’’);
+document.getElementById(‘lb-list’).innerHTML=LBOARD.map(l=>` <div class="lb-item" ${l.isUser?'style="border-color:var(--blue)"':''}> <div class="lb-rank">${l.rank}</div> <div class="lb-av" style="${l.isUser?'background:var(--bdim);color:var(--blue)':''}">${l.av}</div> <div><div class="lb-name" style="${l.isUser?'color:var(--blue)':''}">${l.name}</div><div class="lb-sub">${l.isUser?(pval()+pts).toLocaleString()+' pts':l.pts+' pts'}</div></div> <div class="lb-right"><div class="lb-pts">${l.isUser?(pval()>0?'Active':'—'):l.pts}</div><div class="lb-chg" style="color:${l.chg&&l.chg.startsWith('+')?'var(--accent)':'var(--muted)'}">${l.isUser&&pval()>0?'trading!':l.chg}</div></div> </div>`).join(’’);
+}
+function buyPack(id){
+const p=PACKS.find(x=>x.id===id);
+if(id===‘starter’){if(S.starterClaimed){toast(‘Already claimed!’);return;}S.starterClaimed=true;}
+S.pts+=p.pts;save();syncPts();renderRewards();
+toast(‘🎉 +’+p.pts.toLocaleString()+’ OR Points!’);
+}
+function redeem(id,pts,name){if(S.pts<pts){toast(‘Not enough points!’);return;}S.pts-=pts;save();syncPts();renderRewards();toast(‘🎁 ‘+name+’ redeemed!’);}
+
+// ── LIST ──
+function advanceStep(){
+if(lstep<3){lstep++;document.getElementById(‘dot-’+lstep).classList.add(‘done’);document.getElementById(‘sn-’+lstep).classList.add(‘done’);}
+if(lstep===3){toast(‘🎉 Application submitted!’);lstep=0;setTimeout(()=>{[1,2,3].forEach(i=>{document.getElementById(‘dot-’+i).classList.remove(‘done’);document.getElementById(‘sn-’+i).classList.remove(‘done’);});},2500);}
+}
+
+// ── NAV ──
+function switchTab(tab,el){
+document.querySelectorAll(’.screen’).forEach(s=>s.classList.remove(‘active’));
+document.querySelectorAll(’.nav-item’).forEach(n=>n.classList.remove(‘active’));
+document.getElementById(‘screen-’+tab).classList.add(‘active’);
+el.classList.add(‘active’);
+if(tab===‘portfolio’)renderPort();
+if(tab===‘rewards’)renderRewards();
+}
+
+// ── TOAST ──
+function toast(msg){
+const t=document.getElementById(‘toast-el’);
+t.textContent=msg;t.classList.add(‘show’);
+setTimeout(()=>t.classList.remove(‘show’),2500);
+}
+
+// ── INIT ──
+syncPts();renderCos(COS);renderOrders(ORDERS);renderPort();
+if(!S.starterClaimed)setTimeout(()=>toast(‘🎮 Claim 1,000 free starter points in Rewards!’),1400);
+</script>
+
+</body>
+</html>
