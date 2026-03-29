@@ -971,8 +971,18 @@ setTimeout(()=>t.classList.remove(‘show’),2500);
 }
 
 // ── INIT ──
-syncPts();renderCos(COS);renderOrders(ORDERS);renderPort();
+function init(){
+syncPts();
+renderCos(COS);
+renderOrders(ORDERS);
+renderPort();
 if(!S.starterClaimed)setTimeout(()=>toast(‘🎮 Claim 1,000 free starter points in Rewards!’),1400);
+}
+if(document.readyState===‘loading’){
+document.addEventListener(‘DOMContentLoaded’,init);
+} else {
+init();
+}
 </script>
 
 </body>
