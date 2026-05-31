@@ -55,7 +55,7 @@ nav{position:absolute;bottom:0;left:0;right:0;display:flex;background:rgba(255,2
 
 /* ── HERO ── */
 .hero{background:linear-gradient(145deg,#1D1D1F 0%,#2D2D30 100%);border-radius:20px;padding:24px;margin:8px 20px 0;position:relative;overflow:hidden}
-.hero::after{content:’’;position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(6,194,112,.15);filter:blur(30px)}
+.hero::after{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(6,194,112,.15);filter:blur(30px)}
 .hero-tag{font-size:11px;font-weight:600;color:var(–accent);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
 .hero-title{font-size:22px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:6px;letter-spacing:-.3px}
 .hero-sub{font-size:13px;color:rgba(255,255,255,.55);line-height:1.5}
@@ -382,7 +382,6 @@ nav{position:absolute;bottom:0;left:0;right:0;display:flex;background:rgba(255,2
       </div>
     </div>
 
-```
 <div class="hero">
   <div class="hero-tag">🔓 Private equity for all.</div>
   <div class="hero-title">Invest in tomorrow's<br>biggest companies.</div>
@@ -413,7 +412,6 @@ nav{position:absolute;bottom:0;left:0;right:0;display:flex;background:rgba(255,2
   <div class="label">High-Potential Pre-IPO</div>
   <div class="co-list" id="company-list" style="padding:0"></div>
 </div>
-```
 
   </div>
 
@@ -887,93 +885,91 @@ function openIM(){
     <div class="m-label">Why are you interested? (optional)</div>
     <textarea class="m-textarea" id="mw" placeholder="What excites you about this company?"></textarea>
 
-```
 <button class="btn-full green" onclick="subInt()">Submit Interest →</button>
 <span class="cancel-txt" onclick="closeModal()">Cancel</span>`;
-```
 
-document.getElementById(‘modal’).classList.add(‘open’);
+document.getElementById('modal').classList.add('open');
 }
 function subInt(){
-const n=document.getElementById(‘mn’).value.trim(),e=document.getElementById(‘me’).value.trim(),a=document.getElementById(‘ma’).value,ex=document.getElementById(‘mex’).value;
-if(!n||!e||!a||!ex){toast(‘Please fill all fields’);return;}
+const n=document.getElementById('mn').value.trim(),e=document.getElementById('me').value.trim(),a=document.getElementById('ma').value,ex=document.getElementById('mex').value;
+if(!n||!e||!a||!ex){toast('Please fill all fields');return;}
 S.interests.push({cid:CC.id,cname:CC.name,name:n,email:e,amount:a,exp:ex,date:new Date().toLocaleDateString()});
 S.pts+=500;save();syncPts();
-document.getElementById(‘modal-body’).innerHTML=` <div class="success-view"> <div class="success-emoji">🎉</div> <div class="success-title">Interest Registered!</div> <div class="success-body">We've recorded your interest in <strong>${CC.name}</strong>. When we have enough demand we'll approach the founders.<br><br><strong>+500 OR Points added</strong> as a thank you!</div> <div class="success-card"> <div class="sc-row"><span class="sc-label">Company</span><span class="sc-val">${CC.name}</span></div> <div class="sc-row"><span class="sc-label">Your name</span><span class="sc-val">${n}</span></div> <div class="sc-row"><span class="sc-label">Intent</span><span class="sc-val">${a}</span></div> <div class="sc-row"><span class="sc-label">Bonus</span><span class="sc-val" style="color:var(--gold)">+500 🪙</span></div> </div> <button class="btn-full" onclick="closeModal();closeDetail();renderCos(COS)">Back to Discover</button> </div>`;
+document.getElementById('modal-body').innerHTML=` <div class="success-view"> <div class="success-emoji">🎉</div> <div class="success-title">Interest Registered!</div> <div class="success-body">We've recorded your interest in <strong>${CC.name}</strong>. When we have enough demand we'll approach the founders.<br><br><strong>+500 OR Points added</strong> as a thank you!</div> <div class="success-card"> <div class="sc-row"><span class="sc-label">Company</span><span class="sc-val">${CC.name}</span></div> <div class="sc-row"><span class="sc-label">Your name</span><span class="sc-val">${n}</span></div> <div class="sc-row"><span class="sc-label">Intent</span><span class="sc-val">${a}</span></div> <div class="sc-row"><span class="sc-label">Bonus</span><span class="sc-val" style="color:var(--gold)">+500 🪙</span></div> </div> <button class="btn-full" onclick="closeModal();closeDetail();renderCos(COS)">Back to Discover</button> </div>`;
 renderCos(COS);
 }
-function closeModal(){document.getElementById(‘modal’).classList.remove(‘open’);}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
 
 // ── MARKET ──
 function renderOrders(list){
-document.getElementById(‘order-list’).innerHTML=list.map(o=>` <div class="order-row"> <span class="order-badge ${o.type}">${o.type}</span> <div style="margin-left:4px"><div class="order-ticker">${o.ticker}</div><div class="order-user">${o.user}</div></div> <div class="order-right"><div class="order-price">🪙 ${o.ptPrice.toLocaleString()}</div><div class="order-qty">${o.qty} shares</div></div> <button class="match-btn" style="background:${o.type==='BUY'?'var(--red)':'var(--accent)'};color:#fff" onclick="matchOrd(${o.ptPrice},${o.qty},'${o.type}')">${o.type==='BUY'?'Sell':'Buy'}</button> </div>`).join(’’);
+document.getElementById('order-list').innerHTML=list.map(o=>` <div class="order-row"> <span class="order-badge ${o.type}">${o.type}</span> <div style="margin-left:4px"><div class="order-ticker">${o.ticker}</div><div class="order-user">${o.user}</div></div> <div class="order-right"><div class="order-price">🪙 ${o.ptPrice.toLocaleString()}</div><div class="order-qty">${o.qty} shares</div></div> <button class="match-btn" style="background:${o.type==='BUY'?'var(--red)':'var(--accent)'};color:#fff" onclick="matchOrd(${o.ptPrice},${o.qty},'${o.type}')">${o.type==='BUY'?'Sell':'Buy'}</button> </div>`).join('');
 }
-function filterOrders(t,el){document.querySelectorAll(’.fchip’).forEach(c=>c.classList.remove(‘active’));el.classList.add(‘active’);renderOrders(t===‘all’?ORDERS:ORDERS.filter(o=>o.type===t));}
+function filterOrders(t,el){document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderOrders(t==='all'?ORDERS:ORDERS.filter(o=>o.type===t));}
 function matchOrd(price,qty,type){
 const cost=price*qty;
-if(type===‘BUY’){S.pts+=cost;save();syncPts();toast(‘✓ Sold! +🪙’+cost.toLocaleString());}
-else{if(S.pts<cost){toast(‘Not enough points!’);return;}S.pts-=cost;save();syncPts();toast(‘✓ Bought! -🪙’+cost.toLocaleString());}
+if(type==='BUY'){S.pts+=cost;save();syncPts();toast('✓ Sold! +🪙'+cost.toLocaleString());}
+else{if(S.pts<cost){toast('Not enough points!');return;}S.pts-=cost;save();syncPts();toast('✓ Bought! -🪙'+cost.toLocaleString());}
 }
 
 // ── PORTFOLIO ──
 function renderPort(){
 const pv=pval();
-document.getElementById(‘port-val’).textContent=pv.toLocaleString()+’ pts’;
-document.getElementById(‘port-cash’).textContent=‘Free cash: ‘+S.pts.toLocaleString()+’ 🪙’;
+document.getElementById('port-val').textContent=pv.toLocaleString()+' pts';
+document.getElementById('port-cash').textContent='Free cash: '+S.pts.toLocaleString()+' 🪙';
 const h=Object.entries(S.holdings);
-document.getElementById(‘holdings-list’).innerHTML=!h.length
-?’<div style="text-align:center;padding:28px;color:var(--muted);font-size:14px">No holdings yet — go buy some shares!</div>’
+document.getElementById('holdings-list').innerHTML=!h.length
+?'<div style="text-align:center;padding:28px;color:var(--muted);font-size:14px">No holdings yet — go buy some shares!</div>'
 :h.map(([id,qty])=>{
-const c=COS.find(x=>x.id===parseInt(id));if(!c)return’’;
+const c=COS.find(x=>x.id===parseInt(id));if(!c)return'';
 return `<div class="holding-item" onclick="openD(${c.id})"> <div class="h-logo-sm" style="background:${c.color}12;border:1px solid ${c.color}20">${c.logo}</div> <div><div class="h-name">${c.name}</div><div class="h-sub">${qty} shares · 🪙${c.ptPrice.toLocaleString()}/ea</div></div> <div class="h-right"><div class="h-val" style="color:var(--gold)">🪙${(qty*c.ptPrice).toLocaleString()}</div><div class="h-chg" style="color:${c.change>=0?'var(--accent)':'var(--red)'}">${c.change>=0?'▲':'▼'} ${Math.abs(c.change).toFixed(1)}%</div></div> </div>`;
-}).join(’’);
+}).join('');
 const tr=S.trades.slice(0,8);
-document.getElementById(‘activity-list’).innerHTML=!tr.length
-?’<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px">No trades yet.</div>’
-:tr.map(a=>` <div class="activity-row"> <div class="act-dot" style="background:${a.type==='BUY'?'var(--accent)':'var(--red)'}"></div> <div><div class="act-text">${a.type} ${a.qty} ${a.ticker} @ 🪙${a.pp.toLocaleString()}</div><div class="act-sub">${a.time}</div></div> <div class="act-amt" style="color:${a.type==='BUY'?'var(--red)':'var(--accent)'}">${a.type==='BUY'?'-':'+'}🪙${(a.qty*a.pp).toLocaleString()}</div> </div>`).join(’’);
+document.getElementById('activity-list').innerHTML=!tr.length
+?'<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px">No trades yet.</div>'
+:tr.map(a=>` <div class="activity-row"> <div class="act-dot" style="background:${a.type==='BUY'?'var(--accent)':'var(--red)'}"></div> <div><div class="act-text">${a.type} ${a.qty} ${a.ticker} @ 🪙${a.pp.toLocaleString()}</div><div class="act-sub">${a.time}</div></div> <div class="act-amt" style="color:${a.type==='BUY'?'var(--red)':'var(--accent)'}">${a.type==='BUY'?'-':'+'}🪙${(a.qty*a.pp).toLocaleString()}</div> </div>`).join('');
 }
 
 // ── REWARDS ──
 function renderRewards(){
 const pts=S.pts;
-document.getElementById(‘packs-list’).innerHTML=PACKS.map(p=>` <div class="pack-item ${p.id==='pro'?'featured':''}" onclick="buyPack('${p.id}')"> <div class="pack-icon">${p.icon}</div> <div><div class="pack-pts">🪙 ${p.pts.toLocaleString()}</div><div class="pack-sub">${p.label} · ${p.note}</div>${p.badge?`<div class="pack-badge-tag">${p.badge}</div>`:''}</div> <div class="pack-right"> <div class="pack-price">${p.price}</div> ${p.id==='starter'?`<div class="pack-note">${S.starterClaimed?‘✓ Claimed’:‘Tap to claim’}</div>`:`<div class="pack-note">in-app</div>`} </div> </div>`).join(’’);
-document.getElementById(‘rewards-list’).innerHTML=REWARDS.map(r=>` <div class="reward-item"> <div class="reward-top"><div class="reward-icon">${r.icon}</div><div><div class="reward-name">${r.name}</div><div class="reward-brand">${r.brand}</div></div></div> <div class="reward-desc">${r.desc}</div> <div class="reward-footer"> <span class="reward-pts-val">🪙 ${r.pts.toLocaleString()}</span> <button class="redeem-btn" ${pts<r.pts?'disabled':''} onclick="redeem('${r.id}',${r.pts},'${r.name}')">${pts>=r.pts?'Redeem':'Need more'}</button> </div> </div>`).join(’’);
-document.getElementById(‘lb-list’).innerHTML=LBOARD.map(l=>` <div class="lb-item" ${l.isUser?'style="border-color:var(--blue)"':''}> <div class="lb-rank">${l.rank}</div> <div class="lb-av" style="${l.isUser?'background:var(--bdim);color:var(--blue)':''}">${l.av}</div> <div><div class="lb-name" style="${l.isUser?'color:var(--blue)':''}">${l.name}</div><div class="lb-sub">${l.isUser?(pval()+pts).toLocaleString()+' pts':l.pts+' pts'}</div></div> <div class="lb-right"><div class="lb-pts">${l.isUser?(pval()>0?'Active':'—'):l.pts}</div><div class="lb-chg" style="color:${l.chg&&l.chg.startsWith('+')?'var(--accent)':'var(--muted)'}">${l.isUser&&pval()>0?'trading!':l.chg}</div></div> </div>`).join(’’);
+document.getElementById('packs-list').innerHTML=PACKS.map(p=>` <div class="pack-item ${p.id==='pro'?'featured':''}" onclick="buyPack('${p.id}')"> <div class="pack-icon">${p.icon}</div> <div><div class="pack-pts">🪙 ${p.pts.toLocaleString()}</div><div class="pack-sub">${p.label} · ${p.note}</div>${p.badge?`<div class="pack-badge-tag">${p.badge}</div>`:''}</div> <div class="pack-right"> <div class="pack-price">${p.price}</div> ${p.id==='starter'?`<div class="pack-note">${S.starterClaimed?'✓ Claimed':'Tap to claim'}</div>`:`<div class="pack-note">in-app</div>`} </div> </div>`).join('');
+document.getElementById('rewards-list').innerHTML=REWARDS.map(r=>` <div class="reward-item"> <div class="reward-top"><div class="reward-icon">${r.icon}</div><div><div class="reward-name">${r.name}</div><div class="reward-brand">${r.brand}</div></div></div> <div class="reward-desc">${r.desc}</div> <div class="reward-footer"> <span class="reward-pts-val">🪙 ${r.pts.toLocaleString()}</span> <button class="redeem-btn" ${pts<r.pts?'disabled':''} onclick="redeem('${r.id}',${r.pts},'${r.name}')">${pts>=r.pts?'Redeem':'Need more'}</button> </div> </div>`).join('');
+document.getElementById('lb-list').innerHTML=LBOARD.map(l=>` <div class="lb-item" ${l.isUser?'style="border-color:var(--blue)"':''}> <div class="lb-rank">${l.rank}</div> <div class="lb-av" style="${l.isUser?'background:var(--bdim);color:var(--blue)':''}">${l.av}</div> <div><div class="lb-name" style="${l.isUser?'color:var(--blue)':''}">${l.name}</div><div class="lb-sub">${l.isUser?(pval()+pts).toLocaleString()+' pts':l.pts+' pts'}</div></div> <div class="lb-right"><div class="lb-pts">${l.isUser?(pval()>0?'Active':'—'):l.pts}</div><div class="lb-chg" style="color:${l.chg&&l.chg.startsWith('+')?'var(--accent)':'var(--muted)'}">${l.isUser&&pval()>0?'trading!':l.chg}</div></div> </div>`).join('');
 }
 function buyPack(id){
 const p=PACKS.find(x=>x.id===id);
-if(id===‘starter’){if(S.starterClaimed){toast(‘Already claimed!’);return;}S.starterClaimed=true;}
+if(id==='starter'){if(S.starterClaimed){toast('Already claimed!');return;}S.starterClaimed=true;}
 S.pts+=p.pts;save();syncPts();renderRewards();
-toast(‘🎉 +’+p.pts.toLocaleString()+’ OR Points!’);
+toast('🎉 +'+p.pts.toLocaleString()+' OR Points!');
 }
-function redeem(id,pts,name){if(S.pts<pts){toast(‘Not enough points!’);return;}S.pts-=pts;save();syncPts();renderRewards();toast(‘🎁 ‘+name+’ redeemed!’);}
+function redeem(id,pts,name){if(S.pts<pts){toast('Not enough points!');return;}S.pts-=pts;save();syncPts();renderRewards();toast('🎁 '+name+' redeemed!');}
 
 // ── LIST ──
 function advanceStep(){
-if(lstep<3){lstep++;document.getElementById(‘dot-’+lstep).classList.add(‘done’);document.getElementById(‘sn-’+lstep).classList.add(‘done’);}
-if(lstep===3){toast(‘🎉 Application submitted!’);lstep=0;setTimeout(()=>{[1,2,3].forEach(i=>{document.getElementById(‘dot-’+i).classList.remove(‘done’);document.getElementById(‘sn-’+i).classList.remove(‘done’);});},2500);}
+if(lstep<3){lstep++;document.getElementById('dot-'+lstep).classList.add('done');document.getElementById('sn-'+lstep).classList.add('done');}
+if(lstep===3){toast('🎉 Application submitted!');lstep=0;setTimeout(()=>{[1,2,3].forEach(i=>{document.getElementById('dot-'+i).classList.remove('done');document.getElementById('sn-'+i).classList.remove('done');});},2500);}
 }
 
 // ── NAV ──
 function switchTab(tab,el){
-document.querySelectorAll(’.screen’).forEach(s=>s.classList.remove(‘active’));
-document.querySelectorAll(’.nav-item’).forEach(n=>n.classList.remove(‘active’));
-document.getElementById(‘screen-’+tab).classList.add(‘active’);
-el.classList.add(‘active’);
-if(tab===‘portfolio’)renderPort();
-if(tab===‘rewards’)renderRewards();
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+document.getElementById('screen-'+tab).classList.add('active');
+el.classList.add('active');
+if(tab==='portfolio')renderPort();
+if(tab==='rewards')renderRewards();
 }
 
 // ── TOAST ──
 function toast(msg){
-const t=document.getElementById(‘toast-el’);
-t.textContent=msg;t.classList.add(‘show’);
-setTimeout(()=>t.classList.remove(‘show’),2500);
+const t=document.getElementById('toast-el');
+t.textContent=msg;t.classList.add('show');
+setTimeout(()=>t.classList.remove('show'),2500);
 }
 
 // ── INIT ──
 syncPts();renderCos(COS);renderOrders(ORDERS);renderPort();
-if(!S.starterClaimed)setTimeout(()=>toast(‘🎮 Claim 1,000 free starter points in Rewards!’),1400);
+if(!S.starterClaimed)setTimeout(()=>toast('🎮 Claim 1,000 free starter points in Rewards!'),1400);
 </script>
 
 </body>
